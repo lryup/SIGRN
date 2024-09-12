@@ -14,19 +14,19 @@ SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Aut
 
 # Installation
 
-1.Clone the SIGRN repository from GitHub:
+1. Clone the SIGRN repository from GitHub:
 ```
 git clone https://github.com/lryup/SIGRN.git
 ```
-2.Create a new environment:
+2. Create a new environment:
 ```
-  conda create -n your_env_name python=3.8.0
+conda create -n your_env_name python=3.8.0
   ```
-3.Activate the environment:
+3. Activate the environment:
 ```
- conda activate your_env_name
+conda activate your_env_name
  ```
- 4.Install the required packages:
+4. Install the required packages:
  ```
 pip install -r requirements.txt# It is recommended to install only the missing packages
  ```

@@ -5,7 +5,7 @@ SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Aut
 
 ![MDWGANGP2](/images/SIGRN_arc.png)
 
-#Dependencies
+# Dependencies
 - python =3.8
 - torch==2.1.0
 - scanpy==1.9.1
@@ -31,10 +31,10 @@ git clone https://github.com/lryup/SIGRN.git
 pip install -r requirements.txt# It is recommended to install only the missing packages
  ```
 
-#Data Preparation
+# Data Preparation
 In our study, we trained our model using data from [BEENLINE](https://bcb.cs.tufts.edu/DAZZLE/BEELINE.zip).
 You can download the datasets from the provided link. 
-#Training
+# Training
 The training command we used is as follows:
 ```
 python run.py
@@ -44,11 +44,11 @@ python run.py
 We provide an example tutorial  in **Tutorial.ipynb**
 Check out the [this tutorial](https://github.com/lryup/SIGRN/blob/main/Tutorial.ipynb) for a quick overview  of how to use SIGRN for your research!
 
-#Usage
+# Usage
 
 SIGRN accepts input data in CSV, TSV format, or H5AD format as provided by Scanpy (genes in rows and cells in columns for TSV and CSV). The output of the  GRN inference task includes an adjacency matrix and various evaluation metrics, such as AUC, EPR, and AUPRR.
 
-#Baseline methods
+# Baseline methods
 - Beeline https://github.com/Murali-group/Beeline/tree/master
 - DeepSEM https://github.com/HantaoShu/DeepSEM
 - GRN-VAE/DAZZLE https://github.com/TuftsBCB/dazzle/tree/main

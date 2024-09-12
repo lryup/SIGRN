@@ -34,7 +34,7 @@ pip install -r requirements.txt# It is recommended to install only the missing p
 # Data Preparation
 In our study, we trained our model using data from [BEENLINE](https://bcb.cs.tufts.edu/DAZZLE/BEELINE.zip).
 You can download the datasets from the provided link. 
-# Training
+# Runing
 The training command we used is as follows:
 ```
 python run.py

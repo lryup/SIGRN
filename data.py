@@ -8,11 +8,11 @@ import os
 
 # Read ground truth
 def load_beeline_ground_truth(data_dir, gene_names):
-    n_gene = len(gene_names)
-    ground_truth = pd.read_csv(f'{data_dir}/label.csv')
-    TF = set(ground_truth['Gene1'])
-    All_gene = set(ground_truth['Gene1']) | set(ground_truth['Gene2'])
-
+    n_gene = len(gene_names) # Get the number of genes
+    ground_truth = pd.read_csv(f'{data_dir}/label.csv')# Read the label file
+    TF = set(ground_truth['Gene1'])# Set of transcription factors
+    All_gene = set(ground_truth['Gene1']) | set(ground_truth['Gene2'])# Set of all genes
+    # Initialize evaluation mask and transcription factor mask
     evaluate_mask = np.zeros([n_gene, n_gene])
     TF_mask = np.zeros([n_gene, n_gene])
     for i, item in enumerate(gene_names):
@@ -23,20 +23,20 @@ def load_beeline_ground_truth(data_dir, gene_names):
                 evaluate_mask[i, j] = 1
             if item in TF:
                 TF_mask[i, j] = 1
-    
+    # Create a DataFrame for the ground truth
     truth_df = pd.DataFrame(np.zeros([n_gene, n_gene]), 
                             index=gene_names, columns=gene_names)
     for i in range(ground_truth.shape[0]):
         truth_df.loc[ground_truth.iloc[i, 0], ground_truth.iloc[i, 1]] = 1
     A_truth = truth_df.values
-
+    # Get indices of true edges
     idx_source, idx_target = np.where(A_truth)
     truth_edges = set(zip(idx_source, idx_target))
     
-    eval_flat_mask = (evaluate_mask.flatten() != 0)
+    eval_flat_mask = (evaluate_mask.flatten() != 0)# Flatten evaluation mask
     y_true = A_truth.flatten()[eval_flat_mask]
     
-    return eval_flat_mask, y_true, truth_edges
+    return eval_flat_mask, y_true, truth_edges # Return evaluation mask, true labels, and true edges
 
 def load_beeline(data_dir, benchmark_data='hESC', 
                  benchmark_setting='500_STRING'):
@@ -65,6 +65,7 @@ def load_beeline(data_dir, benchmark_data='hESC',
         genes on columns. Second element is the corresponding 
         BEELINE ground truth data 
     '''
+    # Check if data directory exists, create if not
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
     if not os.path.exists(f'{data_dir}/BEELINE/'):
@@ -81,7 +82,7 @@ def download_beeline(save_dir, remove_zip=True):
         raise Exception("save_dir does not exist")
     zip_path = os.path.join(save_dir, 'BEELINE.zip')
     download_file('https://bcb.cs.tufts.edu/GRN-VAE/BEELINE.zip', 
-                  zip_path)
+                  zip_path) # Download BEELINE data
     with zipfile.ZipFile(zip_path,"r") as zip_ref:
         for file in tqdm(desc='Extracting', iterable=zip_ref.namelist(), 
                          total=len(zip_ref.namelist())):

@@ -4,13 +4,46 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import TensorDataset
 from models import SIGRN
-from evaluate import get_metrics
+from evaluate import get_metrics_auc
 from tqdm import tqdm
 from logger import LightLogger
 def runSIGRN(exp_array, configs,
                ground_truth=None, logger=None, progress_bar=False):
     '''
-    Initialize and Train a IntroGRN model with configs
+    Initialize and Train a SIGRN model with configs
+
+    Parameters
+    ----------
+    exp_array: np.array
+        Expression data with cells on rows and genes on columns.
+    configs: dict
+        A dictionary defining various hyperparameters of the
+        model. See Hyperparameters include `train_split`,
+        `train_split_seed`, `batch_size`, `hidden_dim`, `z_dim`,
+        `train_on_non_zero`, `dropout_augmentation`, `cuda`,
+        `alpha`, `beta`, `delayed_steps_on_sparse`, `n_epochs`,
+        `eval_on_n_steps`, `lr_nn`, `lr_adj`, `K1`, and `K2`.
+    ground_truth: tuple or None
+        (Optional, only for BEELINE evaluation) You don't need
+        to define this parameter when you execute DAZZLE on real
+        datasets when the ground truth network is unknown. For
+        evaluations on BEELINE,
+        BEELINE ground truth object exported by
+        data.load_beeline_ground_truth. The first element of this
+        tuple is eval_flat_mask, the boolean mask on the flatten
+        adjacency matrix to identify TFs and target genes. The
+        second element is the lable values y_true after flatten.
+    logger: LightLogger or None
+        Either a predefined logger or None to start a new one. This
+        logger contains metric information logged during training.
+    progress_bar: bool
+        Whether to display a progress bar on epochs.
+
+    Returns
+    -------
+    (torch.Module, List)
+        This function returns a tuple of the trained model and a list of
+        adjacency matrix at all evaluation points.
     '''
     if configs['early_stopping'] != 0 and configs['train_split'] == 1.0:
         raise Exception(
@@ -54,7 +87,7 @@ def runSIGRN(exp_array, configs,
         val_loader = DataLoader(
             val_dt, batch_size=configs['batch_size'], shuffle=True)
 
-
+    # Defining Model
     vae = SIGRN(
         n_gene=n_gene,
         hidden_dim=configs['hidden_dim'], z_dim=configs['z_dim'],
@@ -64,7 +97,7 @@ def runSIGRN(exp_array, configs,
         dropout_augmentation_type=configs['dropout_augmentation_type']
         # A_dim=configs['A_dim']
     )
-
+    # Move things to cuda if necessary
     if configs['cuda']:
         global_mean = global_mean.cuda()
         global_std = global_std.cuda()
@@ -129,7 +162,7 @@ def runSIGRN(exp_array, configs,
                 opt_nn_e.step()
                 opt_nn_d.step()
 
-                # -------lry updata G------
+                # (2)updata G and A
 
                 z_posterior_G = vae.inference_zposterior(out_real['x_rec'].detach().unsqueeze(-1))
                 z_posterior_G = torch.einsum('ogd,agh->ohd', z_posterior_G, out_real['IA'])
@@ -142,7 +175,7 @@ def runSIGRN(exp_array, configs,
 
                 lossG =  lossG_rec_kl
 
-                # lossG = lossG + out_real['loss_rec'].detach()
+                lossG = lossG + out_real['loss_rec'].detach()
 
                 lossG.backward()
 
@@ -172,7 +205,7 @@ def runSIGRN(exp_array, configs,
 
             # adjs.append(adj_m2)
             if ground_truth is not None:
-                epoch_perf = get_metrics(adj_matrix, ground_truth)
+                epoch_perf = get_metrics_auc(adj_matrix, ground_truth)
                 for k in epoch_perf.keys():
                     eval_log[k] = epoch_perf[k]
 
@@ -193,7 +226,7 @@ def runSIGRN(exp_array, configs,
                     es_tracks.append(eval_log['val_loss_rec'])
 
             # logger.log(eval_log)
-            # lry change
+
             print(eval_log)
             # early stopping
             if (es > 0) and (len(es_tracks) > (es + 2)):

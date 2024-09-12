@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 class NearestEmbedFunc(Function):
     """
+    Nearest embedding function that finds the nearest embedding vector for each input vector.
     Input:
     ------
     x - (batch_size, emb_dim, *)

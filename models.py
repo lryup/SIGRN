@@ -4,18 +4,65 @@ from nearest_embed import NearestEmbed,NearestEmbedEMA
 class MLP(nn.Module):
     def __init__(self, in_dim, hidden_dim, out_dim, activation):
         super(MLP, self).__init__()
+        # Define three fully connected layers
         self.l1 = nn.Linear(in_dim, hidden_dim)
         self.l2 = nn.Linear(hidden_dim, hidden_dim)
         self.l3 = nn.Linear(hidden_dim, out_dim)
         self.act = activation()
 
     def forward(self, x):
+        # Forward pass through the MLP
         out1 = self.act(self.l1(x))
         out2 = self.act(self.l2(out1))
         return self.l3(out2)
 
 
 class SIGRN(nn.Module):
+    ''' A SIGRN model
+
+    Parameters
+    ----------
+    n_genes: int
+        Number of Genes
+    hidden_dim: int
+        Size of dimension in the MLP layers
+    z_dim: int
+        Size of dimension of Z
+    A_dim: int
+        Number of Adjacency matrix to be modeled at the same time
+    activation: function
+        A pytorch activation layer
+    train_on_non_zero: bool
+        Whether to train on non-zero data only
+    dropout_augmentation_p: double
+        Probability of augmented dropout. For example, 0.1 means that
+        10% of data will be temporarily assign to zero in each forward
+        pass
+    dropout_augmentation_type: str
+        Choose among 'all' (default), 'belowmean', 'belowhalfmean'. This
+        option specifies where dropout augmentation would happen. If
+        'belowmean' is selected, the augmentation would only happen on
+        values below global mean.
+    pretrained_A: torch.tensor
+        A customized initialization of A instead of random initialization.
+
+    Methods
+    -------
+    get_adj_
+        Obtain current adjacency matrix
+    get_adj
+        Obtain current adjacency matrix as a detached numpy array
+    I_minus_A
+        Calculate I - A
+    reparameterization(z_mu, z_sigma)
+        Reparameterization trick used in VAE
+    add_gaussian_noise(mean, std)
+        Add gaussian noise to the original expression data
+    dropout_augmentation2(x, global_mean)
+        Randomly add dropout noise to the original expression data
+    forward(x, global_mean, global_std, normal,add_gaussian,use_dropout_augmentation)
+        Forward pass
+    '''
     def __init__(
             self, n_gene, hidden_dim=128, z_dim=1, A_dim=1,
             activation=nn.Tanh, train_on_non_zero=False,
@@ -29,6 +76,7 @@ class SIGRN(nn.Module):
         self.A_dim = A_dim
         self.train_on_non_zero = train_on_non_zero
 
+        # Initialize adjacency matrix A
         if pretrained_A is None:
             adj_A = torch.ones(A_dim, n_gene, n_gene) / (n_gene - 1)
             adj_A += torch.rand_like(adj_A) * 0.0002
@@ -36,20 +84,17 @@ class SIGRN(nn.Module):
             adj_A = pretrained_A
         self.adj_A = nn.Parameter(adj_A, requires_grad=True)
 
+        # Inference and generative models
         self.inference_zposterior = MLP(1, hidden_dim, z_dim * 2, activation)
         self.generative_pxz = MLP(z_dim, hidden_dim, 1, activation)
         self.da_p = dropout_augmentation_p
         self.da_type = dropout_augmentation_type
-        # classifier_pos_weight = torch.FloatTensor([1.0])
-        # if self.da_p != 0:
-        #     classifier_pos_weight *= (1 - self.da_p) / self.da_p
-        # self.classifier_pos_weight = nn.Parameter(
-        #     classifier_pos_weight, requires_grad=False
-        # )
 
+        # Initialize weights
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
+        # Initialize weights using Xavier normal distribution
         if isinstance(module, nn.Linear):
             torch.nn.init.xavier_normal_(module.weight)
             if module.bias is not None:
@@ -63,9 +108,11 @@ class SIGRN(nn.Module):
         return (self.adj_A * mask).mean(0)
 
     def get_adj(self):
+        # Return adjacency matrix as a numpy array
         return self.get_adj_().cpu().detach().numpy()
 
     def I_minus_A(self):
+        # Calculate I - A
         eye_tensor = torch.eye(
             self.n_gene, device=self.adj_A.device
         ).repeat(self.A_dim, 1, 1)
@@ -75,16 +122,19 @@ class SIGRN(nn.Module):
         return eye_tensor - clean_A
 
     def reparameterization(self, z_mu, z_sigma):
+        # Reparameterization trick for VAE
         return z_mu + z_sigma * torch.randn_like(z_sigma)
 
     @torch.no_grad()
 
     def add_gaussian_noise(self,matrix, mean=0, std=1):
+        # Add Gaussian noise to the matrix
         device=matrix.device
         noise = torch.randn(matrix.shape,device=device) * std + mean
         noisy_matrix = matrix + noise
         return noisy_matrix
     def dropout_augmentation2(self, x, global_mean,da_p):
+        # Apply mask augmentation
         da_mask = (torch.rand_like(x) < da_p)
         if self.da_type == 'belowmean':
             da_mask = da_mask * (x < global_mean)
@@ -92,7 +142,7 @@ class SIGRN(nn.Module):
             da_mask = da_mask * (x < (global_mean / 2))
         elif self.da_type == 'all':
             da_mask = da_mask
-        noise =  x * da_mask  # change
+        noise =  x * da_mask
         x = x - noise
         return x, noise, da_mask
     def forward(self, x, global_mean,global_std, normal='z-score',add_gaussian=False,use_dropout_augmentation=True):

@@ -2,7 +2,7 @@
 <p align="center">
      </a>
     <a href="https://pypi.org/project/scSIGRN/0.0.7/">
-        <img alt="PyPI" src="https://img.shields.io/badge/scSIGRN-0.0.7-blue" />
+        <img alt="PyPI" src="https://img.shields.io/badge/SIGRN-0.0.7-blue" />
     </a>
     <a href="https://pypi.org/project/scSIGRN/0.0.7/">
         <img alt="PyPI - Python Version" src="https://img.shields.io/badge/python->V.3.8-red" />

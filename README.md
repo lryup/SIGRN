@@ -1,9 +1,22 @@
 # SIGRN
+<p align="center">
+     </a>
+    <a href="https://pypi.org/project/scSIGRN/0.0.7/">
+        <img alt="PyPI" src="https://img.shields.io/badge/scIGRN-0.0.7-blue" />
+    </a>
+    <a href="https://pypi.org/project/scSIGRN/0.0.7/">
+        <img alt="PyPI - Python Version" src="https://img.shields.io/badge/python->V.3.8-red" />
+    </a>
+        <a href="https://pypi.org/project/scSIGRN/0.0.7/">
+        <img alt="PyPI - Python Version" src="https://img.shields.io/badge/tutorial-package-green" />
+    </a>
+    
+</p>
 SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Autoencoders
 
 # Architecture
 
-![MDWGANGP2](/images/SIGRN_arc.png)
+![SIGRN](/images/SIGRN_arc.png)
 
 # Dependencies
 - python =3.8
@@ -13,36 +26,38 @@ SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Aut
 - CUDA toolkit 11.0 or later.
 
 # Installation
-
-1. Clone the SIGRN repository from GitHub:
+If you do not have Anaconda, please download and install Conda, then follow the steps below to create a Conda environment:
+  (1) Clone the SIGRN repository from GitHub:
 ```
 git clone https://github.com/lryup/SIGRN.git
 ```
-2. Create a new environment:
+  (2) Create a new environment:
 ```
 conda create -n your_env_name python=3.8.0
   ```
-3. Activate the environment:
+  (3) Activate the environment:
 ```
 conda activate your_env_name
  ```
-4. Install the required packages:
+  (4) Install the required packages:
  ```
 pip install -r requirements.txt# It is recommended to install only the missing packages
  ```
 
 # Data Preparation
-In our study, we trained our model using data from [BEENLINE](https://bcb.cs.tufts.edu/DAZZLE/BEELINE.zip).
+In our study, we trained our model using all data from [BEENLINE](https://bcb.cs.tufts.edu/DAZZLE/BEELINE.zip).
 You can download the datasets from the provided link. 
 # Runing
 The training command we used is as follows:
 ```
+cd SIGRN  #Navigate to the current working directory
 python run.py
 ```
 # Example tutorial
 
 We provide an example tutorial  in **Tutorial.ipynb**
 Check out the [this tutorial](https://github.com/lryup/SIGRN/blob/main/Tutorial.ipynb) for a quick overview  of how to use SIGRN for your research!
+
 
 # Usage
 

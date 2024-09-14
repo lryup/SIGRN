@@ -55,8 +55,8 @@ python run.py
 ```
 # Example tutorial
 
-We provide an example tutorial  in **Tutorial.ipynb**
-Check out the [this tutorial](https://github.com/lryup/SIGRN/blob/main/Tutorial.ipynb) for a quick overview  of how to use SIGRN for your research!
+We provide an example tutorial  in **Tutorial.ipynb**, and you can
+check out the [tutorial](https://github.com/lryup/SIGRN/blob/main/Tutorial.ipynb) for a quick overview.
 
 
 # Usage

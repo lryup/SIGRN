@@ -177,7 +177,7 @@ def runSIGRN(exp_array, configs,
 
                 lossG = lossG + out_real['loss_rec'].detach()
                 #if epoch >= configs['delayed_steps_on_sparse']:
-                    #lossG += configs['alpha'] * loss_sparse..detach()
+                    #lossG += configs['alpha'] * loss_sparse.detach()
 
                 lossG.backward()
 

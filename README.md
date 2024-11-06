@@ -16,10 +16,10 @@ SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Aut
 
 # Architecture
 
-![SIGRN](/images/SIGRN_arc.png)
+![SIGRN](/images/SIGRN_.png)
 
 # Dependencies
-- python =3.8
+- python >=3.8
 - torch==2.1.0
 - scanpy==1.9.1
 - other detailed installation packages can be found in requirements.txt

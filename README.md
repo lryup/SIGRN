@@ -16,7 +16,7 @@ SIGRN: Inferring Gene Regulatory Network with Soft Introspective Variational Aut
 
 # Architecture
 
-![SIGRN](/images/SIGRN_.png)
+![SIGRN](/images/SIGRN_arc.png)
 
 # Dependencies
 - python >=3.8
